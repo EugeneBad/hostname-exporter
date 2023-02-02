@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -36,14 +39,22 @@ func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	//w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(struct {
+		Timestamp string `json:"timestamp"`
+		Hostname  string `json:"hostname"`
+	}{
+		Timestamp: time.Now().Format(time.RFC3339),
+		Hostname:  os.Getenv("HOSTNAME"),
+	})
 
 	log.WithFields(
 		log.Fields{
 			"status_code": http.StatusOK,
 			"user_agent":  r.UserAgent(),
 		},
-	).Info("Successfully returned hostname")
+	).Infof("Successfully returned hostname: %s", os.Getenv("HOSTNAME"))
 }
 
 func (srv *Server) Close(ctx context.Context) {
