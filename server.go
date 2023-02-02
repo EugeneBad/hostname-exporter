@@ -8,12 +8,25 @@ import (
 	"os"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
 type Server struct {
 	server *http.Server
 }
+
+var (
+	reqCount = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "app_request_count_total",
+			Help: "The total number of requests processed",
+		},
+		[]string{"code", "method"},
+	)
+)
 
 func NewServer(ctx context.Context, port string) *Server {
 	// Return server object that listens on confgured port
@@ -24,6 +37,8 @@ func NewServer(ctx context.Context, port string) *Server {
 
 func (srv *Server) ListenAndServe(ctx context.Context) {
 	http.HandleFunc("/hostname", srv.ServerHandler)
+	http.Handle("/metrics", promhttp.Handler())
+
 	srv.server.ListenAndServe()
 }
 
@@ -36,6 +51,7 @@ func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 				"user_agent":  r.UserAgent(),
 			},
 		).Error("Request should be GET")
+		reqCount.WithLabelValues(fmt.Sprint(http.StatusBadRequest), r.Method).Inc()
 		return
 	}
 
@@ -48,7 +64,7 @@ func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 		Timestamp: time.Now().Format(time.RFC3339),
 		Hostname:  os.Getenv("HOSTNAME"),
 	})
-
+	reqCount.WithLabelValues(fmt.Sprint(http.StatusOK), r.Method).Inc()
 	log.WithFields(
 		log.Fields{
 			"status_code": http.StatusOK,
