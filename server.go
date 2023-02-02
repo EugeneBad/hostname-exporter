@@ -27,14 +27,27 @@ func (srv *Server) ListenAndServe(ctx context.Context) {
 func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusBadRequest)
-
+		log.WithFields(
+			log.Fields{
+				"status_code": http.StatusBadRequest,
+				"user_agent":  r.UserAgent(),
+			},
+		).Error("Request should be GET")
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+	log.WithFields(
+		log.Fields{
+			"status_code": http.StatusOK,
+			"user_agent":  r.UserAgent(),
+		},
+	).Info("Successfully returned hostname")
 }
 
 func (srv *Server) Close(ctx context.Context) {
-	log.Info("Graceful server shutdown...")
+	log.Info("Graceful server shutdown!")
 	if err := srv.server.Shutdown(ctx); err != nil {
 		log.Fatalf("Graceful server shutdown failed:%+s", err)
 	}
