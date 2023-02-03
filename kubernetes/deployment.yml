@@ -17,14 +17,21 @@ spec:
     spec:
       containers:
       - name: hostname-exporter
-        image: hostname-exporter:0.0.1a
+        image: eugenebad/hostname-exporter:0.0.1a
         resources:
           requests:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 20m
+            memory: 20Mi
           limits:
-            cpu: 800m
-            memory: 800Mi
+            cpu: 80m
+            memory: 80Mi
         ports:
-        - containerPort: 9009
+        - containerPort: 9090
           name: http
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+# https://kubernetes.io/docs/concepts/workloads/pods/downward-api/
+# https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
