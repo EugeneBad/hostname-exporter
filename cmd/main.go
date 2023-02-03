@@ -8,19 +8,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	port string = "9090"
+)
+
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 }
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	var port string
-	if val, ok := os.LookupEnv("PORT"); ok {
-		port = val
-	} else {
-		port = "9090"
-	}
-
 	srv := NewServer(ctx, port)
 
 	log.Printf("Application started successfully! Listening on port %s...", port)

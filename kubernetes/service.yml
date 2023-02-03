@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hostname-exporter
+  namespace: hostname-exporter
+spec:
+  selector:
+    app: hostname-exporter
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: http

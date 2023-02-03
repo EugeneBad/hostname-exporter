@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: hostname-exporter
+  namespace: hostname-exporter
+spec:
+  rules:
+  - host: hostname-exporter.local
+    http:
+      paths:
+      - backend:
+          serviceName: hostname-exporter
+          servicePort: 9090

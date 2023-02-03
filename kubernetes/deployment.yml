@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hostname-exporter
+  labels:
+    app: hostname-exporter
+  namespace: hostname-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hostname-exporter
+  template:
+    metadata:
+      labels:
+        app: hostname-exporter
+    spec:
+      containers:
+      - name: hostname-exporter
+        image: hostname-exporter:0.0.1a
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 800m
+            memory: 800Mi
+        ports:
+        - containerPort: 9009
+          name: http
