@@ -116,11 +116,11 @@ $ kubectl create -f kubernetes/namespace.yml
 ```
 Before deploying the application, note that the `kubernetes/ingress.yml` file has a **host** attribute which defines the domain name on which the service will be accessed. You can set this to your liking, so long as it resolves to the local address `127.0.0.1`. Which can be achieved by using the `/etc/hosts` file.
 
-> Ideally, for non-local deployment, resolution should be handled by a dedicated DNS server.
+> Ideally, for non-local deployment, dns resolution should be handled by a dedicated DNS server.
 
 2. Deploy application:
 ```
-$ kubectl create -f kubernetes/
+$ kubectl apply -f kubernetes/
 ```
 
 This exposes the service on `hostname-exporter.local` at port `80`

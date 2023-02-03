@@ -22,8 +22,11 @@ func main() {
 
 	log.Printf("Application started successfully! Listening on port %s...", port)
 
+	// With goroutine, launch http server on set port
 	go srv.ListenAndServe(ctx)
 
+	// Use interrupt signal channel to block program from exiting immediately
+	// Only proceeds when an interrupt signal (Ctrl+C) writes a msg to the channel
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c

@@ -19,6 +19,7 @@ type Server struct {
 }
 
 var (
+	// Initialise the prometheus counter metric to count incoming requests
 	reqCount = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "app_request_count_total",
@@ -28,8 +29,9 @@ var (
 	)
 )
 
+// Return server object that listens on confgured port
+
 func NewServer(ctx context.Context, port string) *Server {
-	// Return server object that listens on confgured port
 	return &Server{
 		server: &http.Server{Addr: fmt.Sprintf(":%s", port)},
 	}
@@ -42,7 +44,9 @@ func (srv *Server) ListenAndServe(ctx context.Context) {
 	srv.server.ListenAndServe()
 }
 
+// Handler function for GET requests on /hostname
 func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
+	// If non-GET request i received, return a 400 BadRequest response code
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusBadRequest)
 		log.WithFields(
@@ -56,7 +60,8 @@ func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	//w.WriteHeader(http.StatusOK)
+	// Implcitly writes a 200 OK response ie w.WriteHeader(http.StatusOK)
+	// Returns the json object
 	json.NewEncoder(w).Encode(struct {
 		Timestamp string `json:"timestamp"`
 		Hostname  string `json:"hostname"`
@@ -73,6 +78,7 @@ func (srv *Server) ServerHandler(w http.ResponseWriter, r *http.Request) {
 	).Infof("Successfully returned hostname: %s", os.Getenv("HOSTNAME"))
 }
 
+// Gracefully shutsdown server by closing the main context.
 func (srv *Server) Close(ctx context.Context) {
 	log.Info("Graceful server shutdown!")
 	if err := srv.server.Shutdown(ctx); err != nil {
